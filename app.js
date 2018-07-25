@@ -8,6 +8,16 @@ var right = document.getElementById('right');
 var container = document.getElementById('quest');
 var totalClicks = 0;
 var lastIndexes = [0,0,0];
+var totaldata = [];
+
+window.onload = function() {
+  if (localStorage.getItem('item')){
+    totaldata = JSON.parse(localStorage.getItem('item'));
+  } else {
+    totaldata = [];
+  }
+};
+
 //creates a product which is the main object type we're dealing with
 function Product(name){
   this.name = name;
@@ -17,16 +27,14 @@ function Product(name){
   allProducts.push(this);
 }
 //loop pops allProducts with Product objects
-for (var idx in imgs){
-  new Product(imgs[idx]) ;
-}
+
 //gets a random number, child of threeRandomImages
 function getRandomInt() {
   return Math.floor(Math.random()*(allProducts.length - 1));
 }
 //sets left, center, and right to the image of a random picture
 function threeRandomImages() {
-  var randomIndexes= [];
+  var randomIndexes = [];
   randomIndexes.push(getRandomInt());
   randomIndexes.push(getRandomInt());
   randomIndexes.push(getRandomInt());
@@ -70,9 +78,13 @@ function handleClick(event){
       allProducts[idx].clicks++;
     }
   }
-  if(totalClicks > 25){
+  if(totalClicks === 25){
     alert('you are out of clicks');
     container.removeEventListener('click', handleClick);
+    for (var i in allProducts){
+      totaldata[i] += allProducts[i].clicks;
+    }
+    localStorage.setItem('item', JSON.stringify(totaldata));
     populateChartData();
     createBar();
   }
@@ -92,6 +104,7 @@ function populateChartData(){
   for (var idx in allProducts){
     chartData.labels.push(allProducts[idx].name);
     chartData.datasets.data.push(allProducts[idx].clicks);
+    chartData.datasets.data[idx] += totaldata[idx];
   }
 }
 function createBar(){
@@ -108,8 +121,13 @@ function createBar(){
     }
   });
 }
+
+for (var i in imgs) {
+  new Product(imgs[i]);
+}
 threeRandomImages();
 container.addEventListener('click', handleClick);
+
 
 /* 'use strict';
 
